@@ -1,0 +1,27 @@
+services:
+  frontend:
+    image: ${FRONTEND_IMAGE:-frontend:latest}
+    # Images are built locally by the Frontend/Backend pipelines; never fall
+    # back to pulling an unrelated image of the same name from Docker Hub.
+    pull_policy: never
+    container_name: frontend
+    ports:
+      - "5000:5000"
+    environment:
+      - BACKEND_URL=http://backend:5001/
+    depends_on:
+      - backend
+
+  backend:
+    image: ${BACKEND_IMAGE:-backend:latest}
+    pull_policy: never
+    container_name: backend
+    ports:
+      - "5001:5001"
+
+# Join the Infrastructure network so the Selenium Grid's Firefox can reach
+# the app as http://frontend:5000.
+networks:
+  default:
+    name: infrastructure_default
+    external: true
